@@ -1,0 +1,418 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── NextAuth models (unchanged) ─────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId], map: "accounts_userId_fkey")
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "sessions_userId_fkey")
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?   @db.Text
+  password      String?
+  role          UserRole  @default(ADMIN)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── CMS models (unchanged) ───────────────────────────────────────────────────
+
+model BlogPost {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  excerpt         String?   @db.Text
+  content         String    @db.LongText
+  thumbnail       String?   @db.Text
+  category        String?
+  tags            String?   @db.Text
+  authorName      String?
+  authorImage     String?   @db.Text
+  isPublished     Boolean   @default(false)
+  isFeatured      Boolean   @default(false)
+  readTime        Int       @default(5)
+  views           Int       @default(0)
+  metaTitle       String?   @db.Text
+  metaDescription String?   @db.Text
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("blog_posts")
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  course    String?
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_submissions")
+}
+
+// Course — ADDITIVE: +batches[] relation
+model Course {
+  id              String      @id @default(cuid())
+  title           String
+  slug            String      @unique
+  description     String      @db.Text
+  content         String?     @db.LongText
+  thumbnail       String?     @db.Text
+  price           Decimal?    @db.Decimal(10, 2)
+  originalPrice   Decimal?    @db.Decimal(10, 2)
+  duration        String?
+  level           CourseLevel @default(BEGINNER)
+  category        String?
+  tags            String?     @db.Text
+  isFeatured      Boolean     @default(false)
+  isPublished     Boolean     @default(false)
+  order           Int         @default(0)
+  metaTitle       String?     @db.Text
+  metaDescription String?     @db.Text
+  outcomes        String?     @db.LongText
+  curriculum      String?     @db.LongText
+  instructor      String?
+  instructorBio   String?     @db.Text
+  instructorImage String?     @db.Text
+  enrollmentCount Int         @default(0)
+  rating          Float       @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  batches         Batch[]
+
+  @@map("courses")
+}
+
+model MediaFile {
+  id           String   @id @default(cuid())
+  url          String   @db.Text
+  size         Int
+  width        Int?
+  height       Int?
+  altText      String?
+  createdAt    DateTime @default(now())
+  filename     String
+  mimeType     String
+  originalName String
+  updatedAt    DateTime @updatedAt
+
+  @@map("media_files")
+}
+
+model Note {
+  id              String       @id @default(cuid())
+  title           String
+  slug            String       @unique
+  description     String?      @db.Text
+  thumbnail       String?      @db.Text
+  price           Decimal?     @db.Decimal(10, 2)
+  originalPrice   Decimal?     @db.Decimal(10, 2)
+  isFree          Boolean      @default(false)
+  subject         String?
+  category        String?
+  tags            String?      @db.Text
+  previewContent  String?      @db.LongText
+  fullContent     String?      @db.LongText
+  isPublished     Boolean      @default(false)
+  isFeatured      Boolean      @default(false)
+  order           Int          @default(0)
+  pageCount       Int?
+  previewPages    Int          @default(2)
+  metaTitle       String?      @db.Text
+  metaDescription String?      @db.Text
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  noteAccesses    NoteAccess[]
+
+  @@map("notes")
+}
+
+// NoteAccess — ADDITIVE: +studentId? for portal merge
+// null = pre-portal purchase; set when student links their account
+model NoteAccess {
+  id         String           @id @default(cuid())
+  noteId     String
+  buyerEmail String
+  buyerName  String?
+  paymentId  String?          @db.Text
+  gateway    String?
+  amountPaid Decimal?         @db.Decimal(10, 2)
+  currency   String           @default("INR")
+  status     NoteAccessStatus @default(PENDING)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  paidAt     DateTime?
+  note       Note             @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  studentId  String?
+  student    Student?         @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@unique([noteId, buyerEmail])
+  @@index([buyerEmail])
+  @@index([studentId])
+  @@map("note_accesses")
+}
+
+model PlacementRecord {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  company     String
+  package     String?
+  course      String?
+  image       String?  @db.Text
+  isPublished Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@map("placement_records")
+}
+
+model SeoSetting {
+  id          String   @id @default(cuid())
+  page        String   @unique
+  title       String?  @db.Text
+  description String?  @db.Text
+  ogImage     String?  @db.Text
+  keywords    String?  @db.Text
+  noIndex     Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+
+  @@map("seo_settings")
+}
+
+model SiteSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.LongText
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  name        String
+  role        String?
+  company     String?
+  image       String?  @db.Text
+  content     String   @db.Text
+  rating      Int      @default(5)
+  isPublished Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+// ─── Student Portal — NEW MODELS ─────────────────────────────────────────────
+
+model Student {
+  id                    String           @id @default(cuid())
+  enrollmentId          String           @unique
+  name                  String
+  email                 String           @unique
+  phone                 String?
+  password              String
+  isActive              Boolean          @default(true)
+  profileImage          String?          @db.Text
+  credentialEmailSentAt DateTime?
+  failedLoginAttempts   Int              @default(0)
+  lockedUntil           DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  enrollments           Enrollment[]
+  sessions              StudentSession[]
+  noteAccesses          NoteAccess[]
+
+  @@map("students")
+}
+
+model Batch {
+  id          String       @id @default(cuid())
+  courseId    String
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String       @unique
+  description String?      @db.Text
+  startDate   DateTime?
+  endDate     DateTime?
+  maxStudents Int?
+  price       Decimal?     @db.Decimal(10, 2)
+  isActive    Boolean      @default(true)
+  isPublished Boolean      @default(false)
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  enrollments Enrollment[]
+  modules     Module[]
+
+  @@map("batches")
+}
+
+model Enrollment {
+  id             String           @id @default(cuid())
+  studentId      String
+  student        Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  batchId        String
+  batch          Batch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  type           EnrollmentType   @default(OFFLINE)
+  status         EnrollmentStatus @default(ACTIVE)
+  amountPaid     Decimal?         @db.Decimal(10, 2)
+  paymentId      String?          @db.Text
+  paymentGateway String?
+  validUntil     DateTime?
+  enrolledAt     DateTime         @default(now())
+  adminNotes     String?          @db.Text
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([studentId, batchId])
+  @@index([batchId])
+  @@map("enrollments")
+}
+
+model Module {
+  id          String             @id @default(cuid())
+  batchId     String
+  batch       Batch              @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  title       String
+  description String?            @db.Text
+  order       Int                @default(0)
+  isPublished Boolean            @default(false)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  resources   LearningResource[]
+
+  @@index([batchId])
+  @@map("modules")
+}
+
+model LearningResource {
+  id          String       @id @default(cuid())
+  moduleId    String
+  module      Module       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  type        ResourceType @default(OTHER)
+  title       String
+  description String?      @db.Text
+  url         String?      @db.Text
+  fileSize    Int?
+  duration    String?
+  isPublished Boolean      @default(false)
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([moduleId])
+  @@map("learning_resources")
+}
+
+model StudentSession {
+  id         String   @id @default(cuid())
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  token      String   @unique @default(cuid())
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([studentId])
+  @@map("student_sessions")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum NoteAccessStatus {
+  PENDING
+  ACTIVE
+  REFUNDED
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum EnrollmentType {
+  ONLINE
+  OFFLINE
+}
+
+enum EnrollmentStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+}
+
+enum ResourceType {
+  NOTE
+  PDF
+  RECORDED_LECTURE
+  STUDY_MATERIAL
+  ASSIGNMENT
+  QUIZ
+  LINK
+  OTHER
+}
