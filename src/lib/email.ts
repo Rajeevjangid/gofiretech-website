@@ -22,7 +22,24 @@ export async function sendStudentCredentials(opts: {
     const from = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@gofiretech.com'
     await transporter.sendMail({
       from: `"${fromName}" <${from}>`,
+      replyTo: from,
       to: opts.to,
+      text: [
+        `Welcome, ${opts.name}!`,
+        '',
+        'Your student account has been created. Here are your login credentials:',
+        '',
+        `Enrollment ID: ${opts.enrollmentId}`,
+        `Email: ${opts.to}`,
+        `Temporary Password: ${opts.password}`,
+        '',
+        'Please change your password after your first login.',
+        '',
+        `Login to Portal: ${opts.loginUrl}`,
+        '',
+        'GoFire Tech — Ignite Your Tech Career',
+        'If you did not expect this email, please contact us.',
+      ].join('\n'),
       subject: `Your GoFire Tech Student Portal Access — ${opts.enrollmentId}`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
