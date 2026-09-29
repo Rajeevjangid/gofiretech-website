@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
-import { LogOut, User, ChevronDown, Flame } from 'lucide-react'
+import { LogOut, User, ChevronDown, Flame, Wallet, FileText } from 'lucide-react'
 import Image from 'next/image'
 
 interface PortalNavbarProps {
@@ -65,6 +65,14 @@ export default function PortalNavbar({ studentName, enrollmentId }: PortalNavbar
                 <Link href="/portal/profile" onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-foreground/[0.05] transition-colors">
                   <User className="w-4 h-4" /> My Profile
+                </Link>
+                <Link href="/portal/fees" onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-foreground/[0.05] transition-colors">
+                  <Wallet className="w-4 h-4" /> My Fees
+                </Link>
+                <Link href="/portal/documents" onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-foreground/[0.05] transition-colors">
+                  <FileText className="w-4 h-4" /> My Documents
                 </Link>
                 <button onClick={logout} disabled={loggingOut}
                   className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-500/5 transition-colors border-t border-border">

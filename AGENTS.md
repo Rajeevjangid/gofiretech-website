@@ -9,3 +9,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - `npm ci` needs `--legacy-peer-deps` (next-auth beta vs nodemailer peer conflict).
 - Startup runs `prisma db push` + seed (admin defaults `admin@gofiretech.com` / `GoFireAdmin2024!` unless ADMIN_EMAIL/ADMIN_PASSWORD set).
 - SMTP_* secrets are optional (email only).
+- Fees/payments/receipts/documents: models in `prisma/schema.prisma` (FeeRecord, Payment, StudentCustomField, StudentDocument); fee math only in `src/lib/fees.ts`. Student documents are stored privately in `private-uploads/` (gitignored, override with PRIVATE_UPLOAD_DIR) and served only via `/api/documents/[id]`. After `prisma db push`/generate, restart the `web` service (dev server caches the old Prisma client).

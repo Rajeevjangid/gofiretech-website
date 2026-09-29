@@ -4,12 +4,14 @@ import { db } from '@/lib/db'
 import Link from 'next/link'
 import { BookOpen, Calendar, ChevronRight, StickyNote } from 'lucide-react'
 import Image from 'next/image'
+import { getStudentFees } from '@/lib/fees'
+import FeeSummaryCard from '@/components/portal/FeeSummaryCard'
 
 export default async function PortalDashboard() {
   const session = await getStudentFromCookie()
   if (!session) redirect('/portal/login')
 
-  const [enrollments, noteAccesses] = await Promise.all([
+  const [enrollments, noteAccesses, feeRows] = await Promise.all([
     db.enrollment.findMany({
       where: { studentId: session.studentId },
       include: {
@@ -27,6 +29,7 @@ export default async function PortalDashboard() {
       include: { note: { select: { id: true, title: true, slug: true, subject: true } } },
       orderBy: { createdAt: 'desc' },
     }),
+    getStudentFees(session.studentId),
   ])
 
   const statusColor = (s: string) =>
@@ -96,6 +99,19 @@ export default async function PortalDashboard() {
           </div>
         )}
       </section>
+
+      {/* Fees */}
+      {feeRows.some(r => r.fee) && (
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-foreground">Fees</h2>
+            <Link href="/portal/fees" className="text-xs text-primary font-medium">Payment history &amp; receipts →</Link>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-5">
+            {feeRows.filter(r => r.fee).map(r => <FeeSummaryCard key={r.enrollmentId} row={r} />)}
+          </div>
+        </section>
+      )}
 
       {/* Purchased Notes */}
       {noteAccesses.length > 0 && (

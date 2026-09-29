@@ -4,6 +4,9 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, RefreshCw, BookOpen } from 'lucide-react'
 import toast from 'react-hot-toast'
+import FeesSection from '@/components/admin/student/FeesSection'
+import CustomFieldsSection from '@/components/admin/student/CustomFieldsSection'
+import DocumentsSection from '@/components/admin/student/DocumentsSection'
 
 interface StudentDetail {
   id: string; enrollmentId: string; name: string; email: string; phone?: string | null
@@ -60,7 +63,7 @@ export default function StudentDetailPage() {
   const statusColor = (s: string) => ({ ACTIVE: 'text-green-500 bg-green-500/10', SUSPENDED: 'text-red-500 bg-red-500/10', EXPIRED: 'text-orange-500 bg-orange-500/10', PENDING: 'text-yellow-500 bg-yellow-500/10' } as Record<string, string>)[s] || 'text-muted-foreground bg-foreground/5'
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-4xl">
       <Link href="/admin/students" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"><ArrowLeft className="w-4 h-4" /> Back to Students</Link>
 
       <div className="bg-card border border-border rounded-2xl p-6">
@@ -117,6 +120,10 @@ export default function StudentDetailPage() {
           </div>
         )}
       </div>
+
+      <FeesSection studentId={id} />
+      <CustomFieldsSection studentId={id} />
+      <DocumentsSection studentId={id} />
     </div>
   )
 }

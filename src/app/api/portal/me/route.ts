@@ -10,7 +10,12 @@ export async function GET(req: NextRequest) {
     where: { id: session.studentId },
     select: { id: true, enrollmentId: true, name: true, email: true, phone: true, profileImage: true, createdAt: true },
   })
-  return NextResponse.json(student)
+  const customFields = await db.studentCustomField.findMany({
+    where: { studentId: session.studentId, visibleToStudent: true },
+    select: { id: true, label: true, value: true },
+    orderBy: { order: 'asc' },
+  })
+  return NextResponse.json({ ...student, customFields })
 }
 
 export async function PATCH(req: NextRequest) {

@@ -278,6 +278,8 @@ model Student {
   enrollments           Enrollment[]
   sessions              StudentSession[]
   noteAccesses          NoteAccess[]
+  customFields          StudentCustomField[]
+  documents             StudentDocument[]
 
   @@map("students")
 }
@@ -320,6 +322,7 @@ model Enrollment {
   adminNotes     String?          @db.Text
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+  feeRecord      FeeRecord?
 
   @@unique([studentId, batchId])
   @@index([batchId])
@@ -415,4 +418,79 @@ enum ResourceType {
   QUIZ
   LINK
   OTHER
+}
+
+// ─── Student fees / payments / custom info / documents ───────────────────────
+
+enum PaymentMethod {
+  CASH
+  UPI
+  BANK_TRANSFER
+  CARD
+  CHEQUE
+  OTHER
+}
+
+model FeeRecord {
+  id           String     @id @default(cuid())
+  enrollmentId String     @unique
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  totalFee     Decimal    @db.Decimal(10, 2)
+  discount     Decimal    @default(0) @db.Decimal(10, 2)
+  dueDate      DateTime?
+  notes        String?    @db.Text
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  payments     Payment[]
+
+  @@map("fee_records")
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  feeRecordId   String
+  feeRecord     FeeRecord     @relation(fields: [feeRecordId], references: [id], onDelete: Cascade)
+  receiptNumber String        @unique
+  amount        Decimal       @db.Decimal(10, 2)
+  paidAt        DateTime      @default(now())
+  method        PaymentMethod @default(CASH)
+  reference     String?
+  notes         String?       @db.Text
+  recordedBy    String?
+  createdAt     DateTime      @default(now())
+
+  @@index([feeRecordId])
+  @@map("payments")
+}
+
+model StudentCustomField {
+  id               String   @id @default(cuid())
+  studentId        String
+  student          Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  label            String
+  value            String   @db.Text
+  visibleToStudent Boolean  @default(true)
+  order            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([studentId])
+  @@map("student_custom_fields")
+}
+
+model StudentDocument {
+  id         String   @id @default(cuid())
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title      String
+  category   String   @default("OTHER")
+  fileName   String
+  mimeType   String
+  size       Int
+  storageKey String   @unique
+  uploadedBy String?
+  createdAt  DateTime @default(now())
+
+  @@index([studentId])
+  @@map("student_documents")
 }
