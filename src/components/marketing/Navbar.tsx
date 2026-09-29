@@ -16,6 +16,7 @@ const navLinks = [
   { label: 'Notes',   href: '/notes' },
   { label: 'About',   href: '/about' },
   { label: 'Contact', href: '/contact' },
+  { label: 'Student Portal', href: '/portal/login' },
 ]
 
 export default function Navbar() {
@@ -51,7 +52,7 @@ export default function Navbar() {
         )}
       >
         <div className="container-pad">
-          <nav className="flex items-center h-[68px] gap-8">
+          <nav className="flex items-center h-[68px] gap-4 lg:gap-8">
 
             {/* ── Official Logo ── */}
             <Link
@@ -102,7 +103,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-3 ml-auto">
               <Link
                 href="/contact"
-                className="text-[13px] font-medium dark:text-white/40 text-foreground/50 dark:hover:text-white/75 hover:text-foreground transition-colors duration-150 px-3 py-2"
+                className="hidden lg:inline-block text-[13px] font-medium dark:text-white/40 text-foreground/50 dark:hover:text-white/75 hover:text-foreground transition-colors duration-150 px-3 py-2"
               >
                 Free Demo
               </Link>

@@ -31,6 +31,7 @@ const company = [
   { label: 'Blog',              href: '/blog' },
   { label: 'Contact',           href: '/contact' },
   { label: 'Placement Records', href: '/about#placements' },
+  { label: 'Student Portal',    href: '/portal/login' },
 ]
 
 const legal = [
