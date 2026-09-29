@@ -84,7 +84,7 @@ function EnrollmentFees({ row, onChange }: { row: Row; onChange: () => void }) {
                     <p className="font-medium">{inr(p.amount)} <span className="text-xs text-muted-foreground font-normal">· {new Date(p.paidAt).toLocaleDateString('en-IN')} · {p.method.replace('_', ' ')}{p.reference ? ` · ${p.reference}` : ''}</span></p>
                   </div>
                   <div className="flex items-center gap-3 text-xs">
-                    <a href={`/receipt/${p.id}`} target="_blank" rel="noopener noreferrer" className="text-primary font-medium">{p.receiptNumber} ↗</a>
+                    <a href={`/receipt/${p.id}`} className="text-primary font-medium">{p.receiptNumber} ↗</a>
                     <button onClick={() => confirm('Delete this payment and its receipt?') && call(`/api/admin/payments/${p.id}`, 'DELETE', undefined, 'Payment deleted')} className="text-red-500">Delete</button>
                   </div>
                 </div>
