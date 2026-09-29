@@ -42,11 +42,26 @@ export default function AdminSidebar() {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
 
+  // Mobile/tablet drawer: toggled by the header menu button
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    const toggle = () => setOpen(o => !o)
+    window.addEventListener('admin-sidebar-toggle', toggle)
+    return () => window.removeEventListener('admin-sidebar-toggle', toggle)
+  }, [])
+  useEffect(() => { setOpen(false) }, [pathname])
+
   // In light mode use the dark-ink logo; in dark mode use the white transparent logo
   const logoSrc = mounted && resolvedTheme === 'light' ? '/logo-light.webp' : (adminLogo || '/logo-dark.webp')
 
   return (
-    <aside className="admin-sidebar w-64 flex-shrink-0 flex flex-col h-screen sticky top-0">
+    <>
+    {open && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setOpen(false)} aria-hidden="true" />}
+    <aside className={cn(
+      'admin-sidebar w-64 flex-shrink-0 flex flex-col h-screen',
+      'fixed inset-y-0 left-0 z-40 transition-transform duration-200 lg:sticky lg:top-0 lg:z-auto lg:translate-x-0',
+      open ? 'translate-x-0' : '-translate-x-full',
+    )}>
       {/* Logo / Brand */}
       <div className="p-5 border-b border-border">
         <Link href="/admin/dashboard" className="flex items-center gap-2.5">
@@ -118,5 +133,6 @@ export default function AdminSidebar() {
         </Link>
       </div>
     </aside>
+    </>
   )
 }

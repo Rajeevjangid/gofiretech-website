@@ -1,7 +1,7 @@
 'use client'
 
 import { signOut } from 'next-auth/react'
-import { Bell, LogOut, ChevronDown } from 'lucide-react'
+import { Bell, LogOut, ChevronDown, Menu } from 'lucide-react'
 import { useState } from 'react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
@@ -17,12 +17,19 @@ export default function AdminHeader({ user }: AdminHeaderProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   return (
-    <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm flex items-center justify-between px-6 sticky top-0 z-20">
-      <div className="flex items-center gap-4">
-        <h2 className="text-sm font-semibold text-muted-foreground">GoFire Tech • Admin</h2>
+    <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm flex items-center justify-between px-3 sm:px-6 sticky top-0 z-20">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        <button
+          onClick={() => window.dispatchEvent(new Event('admin-sidebar-toggle'))}
+          className="lg:hidden w-9 h-9 shrink-0 flex items-center justify-center rounded-lg hover:bg-foreground/[0.05] transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5 text-muted-foreground" />
+        </button>
+        <h2 className="text-sm font-semibold text-muted-foreground truncate">GoFire Tech • Admin</h2>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1 sm:gap-3 shrink-0">
         <ThemeToggle />
         
         <button className="relative w-9 h-9 flex items-center justify-center rounded-lg hover:bg-foreground/[0.05] transition-colors">
@@ -33,7 +40,7 @@ export default function AdminHeader({ user }: AdminHeaderProps) {
         <div className="relative">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-foreground/[0.05] transition-colors"
+            className="flex items-center gap-2.5 px-2 sm:px-3 py-1.5 rounded-lg hover:bg-foreground/[0.05] transition-colors"
           >
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-xs font-bold text-white">
               {user?.name?.charAt(0) || user?.email?.charAt(0) || 'A'}
