@@ -30,7 +30,6 @@ services:
     environment:
       - DATABASE_URL=mysql://root:devroot@db:3306/gofire
       - NEXTAUTH_URL=https://3000-${BASE44_PUBLIC_HOST_SUFFIX}
-      - NEXT_PUBLIC_APP_URL=https://3000-${BASE44_PUBLIC_HOST_SUFFIX}
       - WATCHPACK_POLLING=true
       - NEXT_TELEMETRY_DISABLED=1
     command: ["sh","-ec","npm ci --legacy-peer-deps && npx prisma db push --skip-generate && npx prisma generate && (npm run db:seed || true) && exec npx next dev -H 0.0.0.0 -p 3000"]
