@@ -63,6 +63,9 @@ export async function POST(req: NextRequest) {
 
   const { name, email, phone, password: rawPassword } = parsed.data
 
+  const existing = await db.student.findUnique({ where: { email: email.toLowerCase().trim() }, select: { id: true } })
+  if (existing) return NextResponse.json({ error: 'A student with this email already exists' }, { status: 409 })
+
   const plainPassword = rawPassword || Math.random().toString(36).slice(-10)
   const hashedPassword = await bcrypt.hash(plainPassword, 12)
   const enrollmentId   = await generateEnrollmentId()
