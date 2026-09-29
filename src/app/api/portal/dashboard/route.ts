@@ -26,5 +26,7 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: 'desc' },
   })
 
-  return NextResponse.json({ enrollments, purchasedNotes })
+  // Never expose internal admin fields to students.
+  const safeEnrollments = enrollments.map(({ adminNotes: _n, paymentId: _p, paymentGateway: _g, ...e }) => e)
+  return NextResponse.json({ enrollments: safeEnrollments, purchasedNotes })
 }

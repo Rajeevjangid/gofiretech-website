@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { ALLOWED_DOC_TYPES, MAX_DOC_SIZE, savePrivateFile } from '@/lib/private-storage'
 
-const CATEGORIES = ['IDENTITY', 'PHOTOGRAPH', 'EDUCATION', 'CERTIFICATE', 'OTHER']
+const CATEGORIES = ['IDENTITY', 'PHOTOGRAPH', 'EDUCATION', 'CERTIFICATE', 'RECEIPT', 'OTHER']
 const select = { id: true, title: true, category: true, fileName: true, mimeType: true, size: true, createdAt: true }
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {

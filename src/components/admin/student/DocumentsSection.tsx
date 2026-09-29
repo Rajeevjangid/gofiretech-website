@@ -4,7 +4,7 @@ import { FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Doc { id: string; title: string; category: string; fileName: string; size: number; createdAt: string }
-const CATEGORIES = ['IDENTITY', 'PHOTOGRAPH', 'EDUCATION', 'CERTIFICATE', 'OTHER']
+const CATEGORIES = ['IDENTITY', 'PHOTOGRAPH', 'EDUCATION', 'CERTIFICATE', 'RECEIPT', 'OTHER']
 
 export default function DocumentsSection({ studentId }: { studentId: string }) {
   const [docs, setDocs] = useState<Doc[]>([])

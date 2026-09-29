@@ -49,6 +49,7 @@ export default async function ReceiptPage({ params }: { params: { paymentId: str
     ['Course', e.batch.course.title],
     ['Batch', e.batch.name],
     ['Payment Method', payment.method.replace('_', ' ')],
+    ...(payment.notes ? [['Notes', payment.notes] as [string, string]] : []),
     ...(payment.reference ? [['Reference / Txn ID', payment.reference] as [string, string]] : []),
   ]
 
@@ -77,6 +78,8 @@ export default async function ReceiptPage({ params }: { params: { paymentId: str
         </table>
 
         <div className="mt-6 rounded-lg bg-neutral-50 border border-neutral-200 p-4 space-y-1.5 text-sm">
+          <div className="flex justify-between"><span className="text-neutral-500">Total fee</span><span>{inr(asOf.totalFee)}</span></div>
+          {asOf.discount > 0 && <div className="flex justify-between"><span className="text-neutral-500">Discount</span><span>−{inr(asOf.discount)}</span></div>}
           <div className="flex justify-between"><span className="text-neutral-500">Total payable</span><span>{inr(asOf.payable)}</span></div>
           <div className="flex justify-between text-base font-bold"><span>Amount paid</span><span>{inr(Number(payment.amount))}</span></div>
           <div className="flex justify-between"><span className="text-neutral-500">Total paid to date</span><span>{inr(asOf.paid)}</span></div>

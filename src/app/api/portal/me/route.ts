@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
 
   const student = await db.student.findUnique({
     where: { id: session.studentId },
-    select: { id: true, enrollmentId: true, name: true, email: true, phone: true, profileImage: true, createdAt: true },
+    select: { id: true, enrollmentId: true, name: true, email: true, phone: true, profileImage: true, isActive: true, createdAt: true },
   })
   const customFields = await db.studentCustomField.findMany({
     where: { studentId: session.studentId, visibleToStudent: true },

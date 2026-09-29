@@ -10,14 +10,14 @@ export default function PortalProfilePage() {
   const [form, setForm] = useState({ name: '', phone: '' })
   const [passForm, setPassForm] = useState({ current: '', newPass: '', confirm: '' })
   const [showPass, setShowPass] = useState(false)
-  const [info, setInfo] = useState<{ email?: string; enrollmentId?: string; customFields: Array<{ id: string; label: string; value: string }> }>({ customFields: [] })
-  const [batches, setBatches] = useState<Array<{ enrollmentId: string; status: string; validUntil?: string | null; batch: { name: string; courseTitle: string; startDate?: string | null; endDate?: string | null } }>>([])
+  const [info, setInfo] = useState<{ email?: string; enrollmentId?: string; name?: string; phone?: string; profileImage?: string | null; isActive?: boolean; customFields: Array<{ id: string; label: string; value: string }> }>({ customFields: [] })
+  const [batches, setBatches] = useState<Array<{ enrollmentId: string; status: string; enrolledAt?: string | null; validUntil?: string | null; batch: { name: string; courseTitle: string; startDate?: string | null; endDate?: string | null } }>>([])
 
   useEffect(() => {
     fetch('/api/portal/me').then(r => r.json())
       .then(d => {
         setForm({ name: d.name || '', phone: d.phone || '' })
-        setInfo({ email: d.email, enrollmentId: d.enrollmentId, customFields: d.customFields || [] })
+        setInfo({ name: d.name, profileImage: d.profileImage, isActive: d.isActive, email: d.email, enrollmentId: d.enrollmentId, customFields: d.customFields || [] })
       })
       .finally(() => setLoading(false))
     fetch('/api/portal/fees').then(r => r.ok ? r.json() : []).then(setBatches).catch(() => {})
@@ -58,7 +58,14 @@ export default function PortalProfilePage() {
 
       <div className="bg-card border border-border rounded-2xl p-6 space-y-3">
         <h2 className="font-semibold text-foreground">Account &amp; Batch</h2>
+        {info.profileImage && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={info.profileImage} alt={form.name || 'Profile photo'} className="w-16 h-16 rounded-full object-cover border border-border" />
+        )}
         <dl className="text-sm space-y-2">
+          <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Name</dt><dd className="text-foreground">{form.name}</dd></div>
+          {form.phone && <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Phone</dt><dd className="text-foreground">{form.phone}</dd></div>}
+          <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Account Status</dt><dd className="text-foreground">{info.isActive === false ? 'Inactive' : 'Active'}</dd></div>
           <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Email</dt><dd className="text-foreground">{info.email}</dd></div>
           <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Enrollment ID</dt><dd className="font-mono text-primary">{info.enrollmentId}</dd></div>
           {info.customFields.map(f => (
@@ -72,6 +79,7 @@ export default function PortalProfilePage() {
                 <p className="font-medium text-foreground">{b.batch.courseTitle}</p>
                 <p className="text-xs text-muted-foreground">
                   {b.batch.name} · {b.status}
+                  {b.enrolledAt ? ` · Enrolled ${new Date(b.enrolledAt).toLocaleDateString('en-IN')}` : ''}
                   {b.batch.startDate ? ` · Starts ${new Date(b.batch.startDate).toLocaleDateString('en-IN')}` : ''}
                   {b.batch.endDate ? ` · Ends ${new Date(b.batch.endDate).toLocaleDateString('en-IN')}` : ''}
                 </p>
