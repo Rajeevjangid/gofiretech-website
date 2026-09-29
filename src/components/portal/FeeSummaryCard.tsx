@@ -55,7 +55,7 @@ export default function FeeSummaryCard({ row, detailed = false }: { row: Row; de
                           {p.reference ? ` · ${p.reference}` : ''}
                         </p>
                       </div>
-                      <Link href={`/receipt/${p.id}`} target="_blank" className="text-xs text-primary font-medium whitespace-nowrap">
+                      <Link href={`/receipt/${p.id}`} className="text-xs text-primary font-medium whitespace-nowrap">
                         {p.receiptNumber} ↗
                       </Link>
                     </div>
